@@ -1,0 +1,34 @@
+<!-- 上の index.html とほぼ同じ。body の最後に管理者用セクションとJSだけ追加 -->
+
+<section class="card" id="admin-card">
+  <h2>管理者用（12行目以降）</h2>
+
+  <div id="admin-locked">
+    <p>管理者パスワードを入力してください。</p>
+    <input type="password" id="admin-pass" placeholder="パスワード">
+    <button id="admin-btn">開く</button>
+    <p class="note">※HTML内にパスワードを書いている簡易ロックです。本気で守りたい情報には不向きです。</p>
+  </div>
+
+  <div id="admin-content" style="display:none; margin-top:12px;">
+    <!-- ここに12行目以降の内容（本当の管理者情報）を書いてください -->
+    <p>ここから下は管理者だけのエリアです。</p>
+    <!-- 例：日別ログとか累計とか -->
+  </div>
+</section>
+
+<script>
+  // …… index.html と同じ計算用スクリプトの後に追記 ……
+
+  const ADMIN_PASSWORD = "change_me"; // 好きな文字列に変更
+
+  document.getElementById("admin-btn").addEventListener("click", () => {
+    const input = document.getElementById("admin-pass").value;
+    if (input === ADMIN_PASSWORD) {
+      document.getElementById("admin-content").style.display = "block";
+      document.getElementById("admin-locked").style.display = "none";
+    } else {
+      alert("パスワードが違います");
+    }
+  });
+</script>

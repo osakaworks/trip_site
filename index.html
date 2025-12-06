@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>秋旅チャレンジ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f5f5f7;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+    .row label {
+      min-width: 120px;
+    }
+    input[type="number"],
+    input[readonly] {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 100px;
+      text-align: right;
+      font-size: 14px;
+    }
+    .input-yellow {
+      background: #fff6cc;
+    }
+    .calc-blue {
+      background: #dfeaff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      text-align: right;
+    }
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+    th {
+      background: #f0f0f5;
+    }
+    .note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>秋旅チャレンジ</h1>
+
+  <!-- 上の大きい枠：今日のギフト額 + スポンサー費用 = 明日使える金額 -->
+  <section class="card">
+    <div class="row">
+      <label>今日のギフト額</label>
+      <input id="todayGift" class="calc-blue" type="number" readonly value="0">
+    </div>
+    <div class="row">
+      <span>＋</span>
+    </div>
+    <div class="row">
+      <label>スポンサー費用</label>
+      <!-- ここは黄色：ユーザー入力 -->
+      <input id="sponsor" class="input-yellow" type="number" value="12000">
+    </div>
+    <div class="row">
+      <label>明日使える金額</label>
+      <input id="tomorrowMoney" class="calc-blue" type="number" readonly value="0">
+    </div>
+  </section>
+
+  <!-- 詳細テーブル（12行目より上に相当する公開部分） -->
+  <section class="card">
+    <h2>詳細</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ライブ配信プラットフォーム</th>
+          <th>アイテム数<br><span class="note">（黄色：入力）</span></th>
+          <th>係数</th>
+          <th>ギフト額<br><span class="note">（青：自動）</span></th>
+          <th>日付</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>17ライブ</td>
+          <td><input id="row1-qty" class="input-yellow qty-input" data-row="row1" type="number" value="10000"></td>
+          <td>0.08</td>
+          <td><input id="row1-gift" class="calc-blue" type="number" readonly></td>
+          <td>2025/12/06</td>
+        </tr>
+        <tr>
+          <td>bigolive</td>
+          <td><input id="row2-qty" class="input-yellow qty-input" data-row="row2" type="number" value="2000"></td>
+          <td>0.05</td>
+          <td><input id="row2-gift" class="calc-blue" type="number" readonly></td>
+          <td>2025/12/06</td>
+        </tr>
+        <tr>
+          <td>pococha</td>
+          <td><input id="row3-qty" class="input-yellow qty-input" data-row="row3" type="number" value="3000"></td>
+          <td>0.2</td>
+          <td><input id="row3-gift" class="calc-blue" type="number" readonly></td>
+          <td>2025/12/06</td>
+        </tr>
+        <tr>
+          <td>Tiktok</td>
+          <td><input id="row4-qty" class="input-yellow qty-input" data-row="row4" type="number" value="100"></td>
+          <td>1</td>
+          <td><input id="row4-gift" class="calc-blue" type="number" readonly></td>
+          <td>2025/12/06</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    // 係数
+    const coeffs = {
+      row1: 0.08,
+      row2: 0.05,
+      row3: 0.2,
+      row4: 1
+    };
+
+    function recalcRow(rowId) {
+      const qty = Number(document.getElementById(rowId + "-qty").value) || 0;
+      const gift = Math.floor(qty * coeffs[rowId]);  // 小数切り捨て。必要なら丸め方は調整
+      document.getElementById(rowId + "-gift").value = gift;
+    }
+
+    function recalcTotals() {
+      let total = 0;
+      ["row1","row2","row3","row4"].forEach(id => {
+        total += Number(document.getElementById(id + "-gift").value) || 0;
+      });
+      document.getElementById("todayGift").value = total;
+
+      const sponsor = Number(document.getElementById("sponsor").value) || 0;
+      document.getElementById("tomorrowMoney").value = total + sponsor;
+    }
+
+    // イベント設定
+    document.querySelectorAll(".qty-input").forEach(input => {
+      input.addEventListener("input", () => {
+        recalcRow(input.dataset.row);
+        recalcTotals();
+      });
+    });
+    document.getElementById("sponsor").addEventListener("input", recalcTotals);
+
+    // 初期計算
+    ["row1","row2","row3","row4"].forEach(id => recalcRow(id));
+    recalcTotals();
+  </script>
+</body>
+</html>
