@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>秋旅チャレンジ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
@@ -13,171 +14,535 @@
     }
     h1 {
       font-size: 28px;
-      margin-bottom: 24px;
+      margin: 0 0 16px;
     }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
+
+    /* ===== 上部カード ===== */
+    .top-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px 20px 18px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
     }
-    .row {
+    .summary-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      margin: 8px 0;
+      margin: 10px 0;
       flex-wrap: wrap;
     }
-    .row label {
-      min-width: 120px;
+    .summary-label-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    input[type="number"],
-    input[readonly] {
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      min-width: 100px;
+    .summary-label {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .summary-date-label {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .summary-input {
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      background: #ffe6f0;   /* 薄いピンク */
+      min-width: 160px;
+      font-size: 20px;
       text-align: right;
+      flex: 1;
+    }
+    #tomorrowMoney {
+      font-size: 26px;
+      font-weight: 700;
+      min-width: 220px;
+    }
+    .summary-plus {
+      font-size: 24px;
+      margin: 4px 0 0 4px;
+    }
+    .note {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+
+    /* ===== 日付タブ ===== */
+    .day-buttons {
+      display: flex;
+      gap: 8px;
+      margin: 4px 0 20px;
+      flex-wrap: wrap;
+    }
+    .day-buttons button {
+      padding: 8px 18px;
+      border-radius: 999px;
       font-size: 14px;
+      cursor: pointer;
+      border: 1px dashed #9ca3af;
+      background: #ffffff;
     }
-    .input-yellow {
-      background: #fff6cc;
+    .date-tab.active {
+      background: #ffe6f0;
+      border-style: solid;
+      border-color: #fb7185;
+      font-weight: 600;
     }
-    .calc-blue {
-      background: #dfeaff;
+
+    /* ===== 詳細カード ===== */
+    .detail-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 18px 16px 24px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+    }
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .detail-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .detail-toggle {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid #9ca3af;
+      background: #ffffff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
+      margin-top: 12px;
       font-size: 14px;
     }
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #e5e7eb;
+      padding: 8px 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    th { background: #f3f4f6; }
+    td:first-child, th:first-child { text-align: left; }
+
+    .qty-input, .sponsor-amount {
+      width: 100%;
       padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #fff7c2; /* 黄色 */
       text-align: right;
     }
-    th:first-child, td:first-child {
+    .gift-input {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #ffe6f0; /* 薄ピンク */
+      text-align: right;
+    }
+    .sponsor-name {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
       text-align: left;
     }
-    th {
-      background: #f0f0f5;
+
+    .section-subtitle {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 600;
     }
-    .note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 4px;
+    #addSponsorRow {
+      margin-top: 10px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px dashed #9ca3af;
+      background: #f3f4f6;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 16px; }
+      .summary-row { align-items: flex-start; }
+      .summary-input { flex: 0 0 100%; }
+      #tomorrowMoney { flex: 0 0 100%; }
+      table { font-size: 12px; }
+      th, td { padding: 6px 4px; }
     }
   </style>
 </head>
 <body>
   <h1>秋旅チャレンジ</h1>
 
-  <!-- 上の大きい枠：今日のギフト額 + スポンサー費用 = 明日使える金額 -->
-  <section class="card">
-    <div class="row">
-      <label>今日のギフト額</label>
-      <input id="todayGift" class="calc-blue" type="number" readonly value="0">
+  <!-- 上部集計（ここは誰でも閲覧可） -->
+  <section class="top-card">
+    <div class="summary-row">
+      <div class="summary-label-wrap">
+        <span class="summary-label">今日のギフト</span>
+        <span id="labelToday" class="summary-date-label"></span>
+      </div>
+      <input id="todayGift" class="summary-input" type="number" value="0" readonly />
     </div>
-    <div class="row">
-      <span>＋</span>
+
+    <div class="summary-row">
+      <span class="summary-plus">＋</span>
     </div>
-    <div class="row">
-      <label>スポンサー費用</label>
-      <!-- ここは黄色：ユーザー入力 -->
-      <input id="sponsor" class="input-yellow" type="number" value="12000">
+
+    <div class="summary-row">
+      <div class="summary-label-wrap">
+        <span class="summary-label">スポンサー費用</span>
+      </div>
+      <input id="sponsorTotal" class="summary-input" type="number" value="0" readonly />
     </div>
-    <div class="row">
-      <label>明日使える金額</label>
-      <input id="tomorrowMoney" class="calc-blue" type="number" readonly value="0">
+
+    <hr style="border:none;border-top:1px solid #e5e7eb;margin:12px 0" />
+
+    <div class="summary-row">
+      <div class="summary-label-wrap">
+        <span class="summary-label">明日使える金額</span>
+        <span id="labelTomorrow" class="summary-date-label"></span>
+      </div>
+      <input id="tomorrowMoney" class="summary-input" type="number" value="0" readonly />
     </div>
+
+    <p class="note">
+      ※ スポンサー費用は下の「スポンサー費（内訳）」の合計から自動で反映されます。
+    </p>
   </section>
 
-  <!-- 詳細テーブル（12行目より上に相当する公開部分） -->
-  <section class="card">
-    <h2>詳細</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>ライブ配信プラットフォーム</th>
-          <th>アイテム数<br><span class="note">（黄色：入力）</span></th>
-          <th>係数</th>
-          <th>ギフト額<br><span class="note">（青：自動）</span></th>
-          <th>日付</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>17ライブ</td>
-          <td><input id="row1-qty" class="input-yellow qty-input" data-row="row1" type="number" value="10000"></td>
-          <td>0.08</td>
-          <td><input id="row1-gift" class="calc-blue" type="number" readonly></td>
-          <td>2025/12/06</td>
-        </tr>
-        <tr>
-          <td>bigolive</td>
-          <td><input id="row2-qty" class="input-yellow qty-input" data-row="row2" type="number" value="2000"></td>
-          <td>0.05</td>
-          <td><input id="row2-gift" class="calc-blue" type="number" readonly></td>
-          <td>2025/12/06</td>
-        </tr>
-        <tr>
-          <td>pococha</td>
-          <td><input id="row3-qty" class="input-yellow qty-input" data-row="row3" type="number" value="3000"></td>
-          <td>0.2</td>
-          <td><input id="row3-gift" class="calc-blue" type="number" readonly></td>
-          <td>2025/12/06</td>
-        </tr>
-        <tr>
-          <td>Tiktok</td>
-          <td><input id="row4-qty" class="input-yellow qty-input" data-row="row4" type="number" value="100"></td>
-          <td>1</td>
-          <td><input id="row4-gift" class="calc-blue" type="number" readonly></td>
-          <td>2025/12/06</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- 日付タブ -->
+  <div class="day-buttons">
+    <button id="dayPrev" class="date-tab"></button>
+    <button id="dayCurrent" class="date-tab"></button>
+    <button id="addDayBtn">＋ 日を追加</button>
+  </div>
+
+  <!-- 詳細（管理者だけ開ける） -->
+  <section class="detail-card">
+    <div class="detail-header">
+      <div class="detail-title">詳細</div>
+      <button id="toggleDetail" class="detail-toggle">▲ 詳細を表示</button>
+    </div>
+
+    <!-- 初期状態は非表示 -->
+    <div id="detailContent" style="display:none;">
+      <div class="table-wrapper">
+        <table id="giftTable">
+          <thead>
+            <tr>
+              <th>ライブ配信プラットフォーム</th>
+              <th>アイテム数<br /><span style="font-size:11px">（黄色：入力）</span></th>
+              <th>係数</th>
+              <th>ギフト<br /><span style="font-size:11px">（ピンク：自動）</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>17ライブ</td>
+              <td><input class="qty-input" type="number" data-rate="0.08" /></td>
+              <td>0.08</td>
+              <td><input class="gift-input" type="number" readonly /></td>
+            </tr>
+            <tr>
+              <td>bigolive</td>
+              <td><input class="qty-input" type="number" data-rate="0.05" /></td>
+              <td>0.05</td>
+              <td><input class="gift-input" type="number" readonly /></td>
+            </tr>
+            <tr>
+              <td>pococha</td>
+              <td><input class="qty-input" type="number" data-rate="0.2" /></td>
+              <td>0.2</td>
+              <td><input class="gift-input" type="number" readonly /></td>
+            </tr>
+            <tr>
+              <td>Tiktok</td>
+              <td><input class="qty-input" type="number" data-rate="1" /></td>
+              <td>1</td>
+              <td><input class="gift-input" type="number" readonly /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-subtitle">スポンサー費（内訳）</div>
+
+      <div class="table-wrapper">
+        <table id="sponsorTable">
+          <thead>
+            <tr>
+              <th>スポンサー名</th>
+              <th>金額</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS でデフォルト4行を入れる -->
+          </tbody>
+        </table>
+      </div>
+
+      <button id="addSponsorRow">＋ 行を追加</button>
+
+      <p class="note">
+        ※ 上の金額の合計が自動で「スポンサー費用」に反映されます。
+      </p>
+    </div>
   </section>
 
   <script>
-    // 係数
-    const coeffs = {
-      row1: 0.08,
-      row2: 0.05,
-      row3: 0.2,
-      row4: 1
-    };
+    const PASSWORD = "8686";
+    let isAdmin = false; // 一度パス通ったら true
 
-    function recalcRow(rowId) {
-      const qty = Number(document.getElementById(rowId + "-qty").value) || 0;
-      const gift = Math.floor(qty * coeffs[rowId]);  // 小数切り捨て。必要なら丸め方は調整
-      document.getElementById(rowId + "-gift").value = gift;
+    /* ===== 日付ユーティリティ ===== */
+    function formatDate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}/${m}/${day}`;
+    }
+    function parseDate(str) {
+      const [y, m, d] = str.split("/");
+      return new Date(Number(y), Number(m) - 1, Number(d));
     }
 
-    function recalcTotals() {
-      let total = 0;
-      ["row1","row2","row3","row4"].forEach(id => {
-        total += Number(document.getElementById(id + "-gift").value) || 0;
+    const today = new Date();
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+    const dayPrevBtn = document.getElementById("dayPrev");
+    const dayCurrentBtn = document.getElementById("dayCurrent");
+    dayPrevBtn.textContent = formatDate(yesterday);
+    dayCurrentBtn.textContent = formatDate(today);
+
+    let selectedDate = formatDate(today);
+
+    function updateDateLabels() {
+      const labelToday = document.getElementById("labelToday");
+      const labelTomorrow = document.getElementById("labelTomorrow");
+      labelToday.textContent = `(${selectedDate})`;
+      const base = parseDate(selectedDate);
+      const next = new Date(base.getTime() + 24 * 60 * 60 * 1000);
+      labelTomorrow.textContent = `(${formatDate(next)})`;
+    }
+
+    /* ===== パスワード確認 ===== */
+    function requirePassword() {
+      if (isAdmin) return true; // すでにログイン済み
+      const input = window.prompt("パスワードを入力してください");
+      if (input === null) return false;
+      if (input === PASSWORD) {
+        isAdmin = true;
+        return true;
+      }
+      alert("パスワードが違います");
+      return false;
+    }
+
+    // 「＋ 日を追加」は管理者だけ
+    document.getElementById("addDayBtn").addEventListener("click", () => {
+      if (!requirePassword()) return;
+      alert("「＋ 日を追加」は今は見た目だけです。（あとでタブ追加を実装予定）");
+    });
+
+    /* ===== 詳細の開閉（管理者だけ開ける） ===== */
+    const detailContent = document.getElementById("detailContent");
+    const toggleDetailBtn = document.getElementById("toggleDetail");
+    let detailVisible = false;
+
+    toggleDetailBtn.addEventListener("click", () => {
+      if (!detailVisible) {
+        // これから表示 → パスワード必須
+        if (!requirePassword()) return;
+        detailContent.style.display = "block";
+        toggleDetailBtn.textContent = "▼ 詳細を隠す";
+        detailVisible = true;
+      } else {
+        // 隠すときは自由
+        detailContent.style.display = "none";
+        toggleDetailBtn.textContent = "▲ 詳細を表示";
+        detailVisible = false;
+      }
+    });
+
+    /* ===== 計算ロジック ===== */
+    const qtyInputs = document.querySelectorAll(".qty-input");
+    const giftInputs = document.querySelectorAll(".gift-input");
+    const sponsorAmountInputs = () => document.querySelectorAll(".sponsor-amount");
+
+    function recalcGifts() {
+      let totalGift = 0;
+      qtyInputs.forEach((input, idx) => {
+        const rate = Number(input.dataset.rate || "0");
+        const qty = Number(input.value || "0");
+        const gift = Math.floor(qty * rate);
+        giftInputs[idx].value = gift;
+        totalGift += gift;
       });
-      document.getElementById("todayGift").value = total;
-
-      const sponsor = Number(document.getElementById("sponsor").value) || 0;
-      document.getElementById("tomorrowMoney").value = total + sponsor;
+      document.getElementById("todayGift").value = totalGift;
+      recalcTotal();
     }
 
-    // イベント設定
-    document.querySelectorAll(".qty-input").forEach(input => {
-      input.addEventListener("input", () => {
-        recalcRow(input.dataset.row);
-        recalcTotals();
+    function recalcSponsor() {
+      let total = 0;
+      sponsorAmountInputs().forEach((input) => {
+        total += Number(input.value || "0");
+      });
+      document.getElementById("sponsorTotal").value = total;
+      recalcTotal();
+    }
+
+    function recalcTotal() {
+      const todayGift = Number(document.getElementById("todayGift").value || "0");
+      const sponsor = Number(document.getElementById("sponsorTotal").value || "0");
+      document.getElementById("tomorrowMoney").value = todayGift + sponsor;
+    }
+
+    qtyInputs.forEach((input) => {
+      input.addEventListener("input", recalcGifts);
+    });
+
+    function attachSponsorListeners() {
+      sponsorAmountInputs().forEach((input) => {
+        input.addEventListener("input", recalcSponsor);
+      });
+    }
+
+    /* ===== スポンサー行の描画 ===== */
+    function renderSponsorRows(sponsors) {
+      const tbody = document.querySelector("#sponsorTable tbody");
+      tbody.innerHTML = "";
+      if (sponsors && sponsors.length) {
+        sponsors.forEach((s) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><input class="sponsor-name" type="text" value="${s.name || ""}"/></td>
+            <td><input class="sponsor-amount" type="number" value="${s.amount ?? 0}"/></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } else {
+        for (let i = 1; i <= 4; i++) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><input class="sponsor-name" type="text" value="スポンサー${i}"/></td>
+            <td><input class="sponsor-amount" type="number" value="0"/></td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
+      attachSponsorListeners();
+    }
+
+    /* ===== 日付ごとのデータ保存 ===== */
+    let allData = {};
+    try {
+      allData = JSON.parse(localStorage.getItem("akitabiData") || "{}");
+    } catch (e) {
+      allData = {};
+    }
+
+    function collectCurrentData() {
+      const platforms = [];
+      document.querySelectorAll("#giftTable tbody tr").forEach((tr) => {
+        const qtyInput = tr.querySelector(".qty-input");
+        platforms.push({ qty: Number(qtyInput.value || 0) });
+      });
+      const sponsors = [];
+      document.querySelectorAll("#sponsorTable tbody tr").forEach((tr) => {
+        sponsors.push({
+          name: tr.querySelector(".sponsor-name").value || "",
+          amount: Number(tr.querySelector(".sponsor-amount").value || 0),
+        });
+      });
+      return { platforms, sponsors };
+    }
+
+    function saveCurrentDateData() {
+      allData[selectedDate] = collectCurrentData();
+      localStorage.setItem("akitabiData", JSON.stringify(allData));
+    }
+
+    function loadDateData(dateStr) {
+      const data = allData[dateStr];
+      // プラットフォーム側
+      if (data && data.platforms) {
+        document
+          .querySelectorAll("#giftTable tbody tr")
+          .forEach((tr, idx) => {
+            const qtyInput = tr.querySelector(".qty-input");
+            if (data.platforms[idx]) {
+              qtyInput.value = data.platforms[idx].qty;
+            } else {
+              qtyInput.value = "";
+            }
+          });
+      } else {
+        document.querySelectorAll(".qty-input").forEach((input) => {
+          input.value = "";
+        });
+      }
+      // スポンサー側
+      renderSponsorRows(data && data.sponsors ? data.sponsors : null);
+
+      // 合計再計算
+      recalcGifts();
+      recalcSponsor();
+    }
+
+    // 日付タブのクリック
+    document.querySelectorAll(".date-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // 現在の日付データを保存
+        saveCurrentDateData();
+
+        selectedDate = btn.textContent.trim();
+        document
+          .querySelectorAll(".date-tab")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        updateDateLabels();
+        loadDateData(selectedDate);
       });
     });
-    document.getElementById("sponsor").addEventListener("input", recalcTotals);
 
-    // 初期計算
-    ["row1","row2","row3","row4"].forEach(id => recalcRow(id));
-    recalcTotals();
+    // 初期設定
+    dayCurrentBtn.classList.add("active");
+    updateDateLabels();
+    renderSponsorRows(null);   // デフォルト4行
+    loadDateData(selectedDate); // localStorageにあれば読み込み
+    recalcGifts();
+    recalcSponsor();
+
+    // スポンサー行追加（これは管理者のみだが、詳細が開いてないと押せないのでOK）
+    document.getElementById("addSponsorRow").addEventListener("click", () => {
+      const tbody = document.querySelector("#sponsorTable tbody");
+      const idx = tbody.querySelectorAll("tr").length + 1;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input class="sponsor-name" type="text" value="スポンサー${idx}"/></td>
+        <td><input class="sponsor-amount" type="number" value="0"/></td>
+      `;
+      tbody.appendChild(tr);
+      tr.querySelector(".sponsor-amount").addEventListener("input", recalcSponsor);
+    });
+
+    // ページ離脱時も保存
+    window.addEventListener("beforeunload", saveCurrentDateData);
   </script>
 </body>
 </html>
